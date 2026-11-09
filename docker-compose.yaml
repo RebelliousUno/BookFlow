@@ -1,0 +1,20 @@
+## Services we need
+## 1. the ADK agent to run
+## 2. the graph database (neo4j) to store the knowledge graph
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/goodreads
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_initial_dbms_default__database: goodreads
+    volumes:
+      - neo4j_data:/data
+
+volumes: 
+  neo4j_data:
+  

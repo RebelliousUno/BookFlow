@@ -1,0 +1,38 @@
+query GetRecentActivityWithBookDetails($lastRunTime: timestamptz!) {
+      activities(where: { user_id: { _eq: 192077 }, created_at: { _gt: $lastRunTime }, event: { _neq: "GoalActivity" } }, limit: 100, order_by: { created_at: asc }) {
+        id
+        event
+        data
+        book_id
+        created_at
+        book {
+          id
+          title
+          subtitle
+          description
+          release_date
+          pages
+          audio_seconds
+          rating
+          ratings_count
+          image {
+            url
+          }
+          contributions {
+            contribution
+            author {
+              name
+              slug
+            }
+          }
+          cached_tags
+          book_series {
+            position
+            series {
+              name
+              books_count
+            }
+          }
+        }
+      }
+    }

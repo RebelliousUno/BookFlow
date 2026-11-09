@@ -1,0 +1,13 @@
+mutation CreateTextPost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    ... on PostActionSuccess {
+      post {
+        id
+        text
+      }
+    }
+    ... on MutationError {
+      message
+    }
+  }
+}

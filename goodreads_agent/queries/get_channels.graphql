@@ -1,0 +1,8 @@
+query GetChannels($input: ChannelsInput!) {
+  channels(input: $input) {
+    id
+    name
+    service
+    isLocked
+  }
+}

@@ -1,0 +1,8 @@
+query GetOrganizationsAndChannels {
+  account {
+    organizations {
+      id
+      name
+    }
+  }
+}
