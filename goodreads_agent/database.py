@@ -26,19 +26,6 @@ MERGE (a)-[:WROTE]->(b)
 RETURN b.title AS title
 """
 
-GET_BOOK_BY_TITLE = """
-MATCH (b:Book {title: $book_title})
-OPTIONAL MATCH (a:Author)-[:WROTE]->(b)
-RETURN b.title AS title,
-       b.hardcover_book_link AS hardcover_book_link,
-       b.page_count AS page_count,
-       b.audio_seconds AS audio_seconds,
-       b.synopsis AS description,
-       b.image_url AS image_url,
-       collect(a.name) AS authors
-"""
-
-
 GET_LAST_RUN_TIME = """
 MATCH (c:Config {name: 'last_run_time'})
 RETURN c.value AS last_run_time
@@ -122,23 +109,6 @@ def set_last_run_time(last_run_time: str):
         session.run(SET_LAST_RUN_TIME, last_run_time=last_run_time)
 
 
-def get_book_by_title(book_title: str) -> Book | None:
-    with driver.session(database=database) as session:
-        result = session.run(GET_BOOK_BY_TITLE, book_title=book_title)
-        record = result.single()
-        if record:
-            return Book(
-                title=record["title"],
-                hardcover_book_link=record["hardcover_book_link"],
-                pageCount=record["page_count"],
-                audioSeconds=record["audio_seconds"],
-                description=record["description"],
-                imageUrl=record["image_url"],
-                authors=record["authors"],
-            )
-        return None
-
-
 def add_book(book: Book):        
     
     hardcover_link = f"https://hardcover.app/books/{book.id}" if book.id else ""    
@@ -174,18 +144,6 @@ def check_if_book_exists(book_title: str) -> bool:
             f"Database check for book title '{book_title}': {'Found' if result is not None else 'Not Found'}"
         )
         return result is not None
-
-
-def check_if_goodreadsentry_exists(entry_id: str) -> bool:
-    with driver.session(database=database) as session:
-        result = session.run(
-            "MATCH (e:GoodreadsEntry {update_id: $entry_id}) RETURN e",
-            entry_id=entry_id,
-        )
-        print(
-            f"Database check for entry_id {entry_id}: {'Found' if result.single() is not None else 'Not Found'}"
-        )
-        return result.single() is not None
 
 
 def connect_to_neo4j():
