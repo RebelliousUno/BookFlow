@@ -1,3 +1,5 @@
+# Mermaid Diagram
+
 ```mermaid
 graph TD
     START([START]) --> fetch_rss_all --> fetch_next_entry
