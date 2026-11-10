@@ -25,7 +25,7 @@ from goodreads_agent.prompt import (
 
 load_dotenv()
 client = genai.Client()
-
+GEMINI_MODEL = os.getenv("GOOGLE_MODEL")
 
 def set_last_run_time_in_database(last_run_time: str):
     set_last_run_time(last_run_time)
@@ -173,7 +173,7 @@ def create_social_media_post_instruction_provider(context: ReadonlyContext) -> s
 
 create_social_media_post_agent = LlmAgent(
     name="create_social_media_post_agent",
-    model="gemini-3.8-flash",
+    model=GEMINI_MODEL,
     instruction=create_social_media_post_instruction_provider,
     output_key="social_media_post",
 )
@@ -191,7 +191,7 @@ async def create_social_media_post(batched_prompts: list[str] | None):
     )
     print(create_social_media_prompt)
     response = await client.aio.models.generate_content(
-        model="gemini-3.1-flash-lite",
+        model=GEMINI_MODEL,
         contents=create_social_media_prompt,
         config=types.GenerateContentConfig(
             system_instruction="", response_mime_type="text/plain", temperature=0.7
