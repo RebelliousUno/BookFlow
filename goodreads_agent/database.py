@@ -2,8 +2,9 @@ import json
 import os
 from typing import Any
 
-from hardcover_activities_models import ActivityItem, Book
 from neo4j import GraphDatabase
+
+from goodreads_agent.hardcover_activities_models import ActivityItem, Book
 
 ADD_BOOK_CYPHER = """
 MERGE (b:Book {title: $title})

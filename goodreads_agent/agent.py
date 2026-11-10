@@ -173,7 +173,7 @@ def create_social_media_post_instruction_provider(context: ReadonlyContext) -> s
 
 create_social_media_post_agent = LlmAgent(
     name="create_social_media_post_agent",
-    model="gemini-3.1-flash-lite",
+    model="gemini-3.8-flash",
     instruction=create_social_media_post_instruction_provider,
     output_key="social_media_post",
 )
@@ -217,6 +217,7 @@ def post_to_social_media(social_media_post: str | None, current_activity: Activi
 def update_database_with_post_info(
     social_media_post: str | None,
     all_activities: list[ActivityItem] | None = None,
+    pending_run_time: str | None = None,
 ):
     # update the database with the activities, books, and the post and link them together
     if not social_media_post:
@@ -230,18 +231,28 @@ def update_database_with_post_info(
         social_media_post, all_activities
     )
     print(f"[NEO4J] Saved social post and {saved_count} activities.")
+    if pending_run_time:
+        database.set_last_run_time(pending_run_time)
     return Event(state={"workflow_complete": True, "activities_saved": saved_count})
 
 
 def finish_batch():
+    # The last run time is only persisted once the post has been created successfully,
+    # so a model failure (e.g. 503) doesn't skip these activities on the next run.
     current_run_time = datetime.now().isoformat()
-    database.set_last_run_time(current_run_time)  # Update with the actual last run time ie now
-    return Event(state={"status": f"Current Run Time {current_run_time}"})
+    return Event(
+        state={
+            "pending_run_time": current_run_time,
+            "status": f"Current Run Time {current_run_time}",
+        }
+    )
 
 
 def finish_empty_batch():
     print("[HARDCOVER] No activities found; finishing the run.")
-    return finish_batch()
+    current_run_time = datetime.now().isoformat()
+    database.set_last_run_time(current_run_time)
+    return Event(state={"status": f"Current Run Time {current_run_time}"})
 
 
 def end_node():

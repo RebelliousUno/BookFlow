@@ -14,6 +14,26 @@ services:
       NEO4J_initial_dbms_default__database: goodreads
     volumes:
       - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -a bolt://localhost:7687 -u neo4j -p \"$${NEO4J_AUTH#*/}\" 'RETURN 1' > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  worker:
+    build:
+      context: .
+    profiles:
+      - worker
+    env_file:
+      - goodreads_agent/.env
+    environment:
+      NEO4J_URL: neo4j://neo4j:7687
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    restart: "no"
 
 volumes: 
   neo4j_data:
